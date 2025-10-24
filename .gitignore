@@ -361,3 +361,22 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.tmp
+*.log
+*.cache
+*.csproj.user
+[Tt]est[Rr]esult*/
+*.nupkg
+# local data files created by the app
+WorkTimer.App/bin/
+WorkTimer.App/obj/
+WorkTimer.App/shift.json
+WorkTimer.App/settings.json
+WorkTimer.App/history.json

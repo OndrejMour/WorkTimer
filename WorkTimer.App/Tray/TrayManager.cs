@@ -8,17 +8,19 @@ public class TrayManager : IDisposable
  public NotifyIcon NotifyIcon { get; } = new NotifyIcon();
  public event EventHandler? ShowRequested;
  public event EventHandler? TogglePauseRequested;
+ public event EventHandler? SettingsRequested;
 
  public TrayManager()
  {
- NotifyIcon.Icon = System.Drawing.SystemIcons.Information;
+ try { NotifyIcon.Icon = AppIcon.GetAppIcon(); } catch { NotifyIcon.Icon = System.Drawing.SystemIcons.Information; }
  NotifyIcon.Visible = true;
  NotifyIcon.Text = "Work Timer";
  var menu = new ContextMenuStrip();
  var show = new ToolStripMenuItem("Show", null, (_,__) => ShowRequested?.Invoke(this, EventArgs.Empty));
  var pauseResume = new ToolStripMenuItem("Pause/Resume", null, (_,__) => TogglePauseRequested?.Invoke(this, EventArgs.Empty));
+ var settings = new ToolStripMenuItem("Settings", null, (_,__) => SettingsRequested?.Invoke(this, EventArgs.Empty));
  var exit = new ToolStripMenuItem("Exit", null, (_,__) => Application.Exit());
- menu.Items.AddRange(new ToolStripItem[] { show, pauseResume, new ToolStripSeparator(), exit });
+ menu.Items.AddRange(new ToolStripItem[] { show, pauseResume, settings, new ToolStripSeparator(), exit });
  NotifyIcon.ContextMenuStrip = menu;
  NotifyIcon.DoubleClick += (_, __) => ShowRequested?.Invoke(this, EventArgs.Empty);
  }
