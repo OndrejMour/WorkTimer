@@ -25,6 +25,23 @@ public class TrayManager : IDisposable
  NotifyIcon.DoubleClick += (_, __) => ShowRequested?.Invoke(this, EventArgs.Empty);
  }
 
+ /// <summary>
+ /// Updates the tooltip text shown when hovering over the tray icon
+ /// </summary>
+ /// <param name="text">Tooltip text (max 63 characters due to Windows limitation)</param>
+ public void UpdateTooltip(string text)
+ {
+ // Windows has a 63-character limit for NotifyIcon.Text
+ if (text.Length > 63)
+ {
+ NotifyIcon.Text = text.Substring(0, 60) + "...";
+ }
+ else
+ {
+ NotifyIcon.Text = text;
+ }
+ }
+
  public void Balloon(string title, string text, ToolTipIcon icon = ToolTipIcon.Info, int timeoutMs =5000)
  {
  NotifyIcon.BalloonTipTitle = title;

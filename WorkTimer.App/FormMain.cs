@@ -701,24 +701,33 @@ public class FormMain : Form
  }
 
  // Shift state indicator
+ string shiftStateText;
  if (_shift.IsOnBreak)
  {
  _lbShiftState.Text = $"{Localization.T(L, "ShiftState")} {Localization.T(L, "OnBreak")}";
  _lbShiftState.ForeColor = Theme.Warning;
+ shiftStateText = Localization.T(L, "OnBreak");
  }
  else if (_shift.End.HasValue)
  {
  _lbShiftState.Text = $"{Localization.T(L, "ShiftState")} {Localization.T(L, "ShiftEnded")}";
  _lbShiftState.ForeColor = Theme.Error;
+ shiftStateText = Localization.T(L, "ShiftEnded");
  }
  else
  {
  _lbShiftState.Text = $"{Localization.T(L, "ShiftState")} {Localization.T(L, "ShiftRunning")}";
  _lbShiftState.ForeColor = Theme.Success;
+ shiftStateText = Localization.T(L, "ShiftRunning");
  }
 
  // Break button text
  _btnBreak.Text = _shift.IsOnBreak ? Localization.T(L, "EndBreak") : Localization.T(L, "StartBreak");
+
+ // Update tray tooltip with current shift info
+ var currentTaskName = current?.Task ?? Localization.T(L, "PausedState");
+ var tooltipText = $"{shiftStateText} | {Localization.T(L, "TrayWorked")} {workedShift:hh\\:mm\\:ss}/{target:hh\\:mm} | {Localization.T(L, "TrayRemaining")} {remainingToTarget:hh\\:mm}";
+ _tray.UpdateTooltip(tooltipText);
 
  if (!_shift.End.HasValue)
  {

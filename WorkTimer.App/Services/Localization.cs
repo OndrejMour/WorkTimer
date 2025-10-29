@@ -37,6 +37,11 @@ public static class Localization
  "EndBreak" => "End break",
  "OnBreak" => "on break",
 
+ // Tray tooltip
+ "TrayWorked" => "Worked",
+ "TrayTarget" => "Target",
+ "TrayRemaining" => "Remaining",
+
  // Tasks
  "TasksCaption" => "Tasks",
  "StartTask" => "Start task",
@@ -131,6 +136,11 @@ public static class Localization
  "StartBreak" => "Pøestávka",
  "EndBreak" => "Konec pøestávky",
  "OnBreak" => "pøestávka",
+
+ // Tray tooltip
+ "TrayWorked" => "Odprac.",
+ "TrayTarget" => "Cíl",
+ "TrayRemaining" => "Zbývá",
 
  // Tasks
  "TasksCaption" => "Úkoly",
