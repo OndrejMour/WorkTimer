@@ -4,12 +4,8 @@ Ideas and possible next steps. Vote or send PRs.
 
 ## Short term
 - App installer (MSIX) and versioning
-- Add `LICENSE` and choose an OSI-approved license (MIT recommended)
-- Optional minimize-to-tray on close, start minimized
-- Auto-start with Windows (toggle in Settings)
 - Persist window position/size
-- Daily auto-archive to History at midnight if running
-- Export improvements: date range export, per-task summary
+- Export implementation
 - UI: dark theme support, better icons
 
 ## Medium term
@@ -22,7 +18,7 @@ Ideas and possible next steps. Vote or send PRs.
 
 ## Long term
 - Pluggable storage (SQLite) with reports
-- Synchronization options (OneDrive) – optional
+- Synchronization options (OneDrive) â€“ optional
 - Multi-language support beyond CS/EN
 - Telemetry-free update checker
 
