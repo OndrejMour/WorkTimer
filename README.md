@@ -45,7 +45,7 @@ CSV export (optional UI button is hidden by default in code) writes: `Start, End
 
 ## Localization
 
-- Supported: `Èeština`, `English`
+- Supported: `Čeština`, `English`
 - Change in `Settings` dialog. Strings are in `WorkTimer.App/Services/Localization.cs`.
 
 ## Project structure
