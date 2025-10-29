@@ -25,9 +25,9 @@ Build and run:
 - CLI: `dotnet build -c Release` then run the produced exe in `WorkTimer.App/bin/Release/net8.0-windows/`.
 
 Portable data files (created next to the executable):
-- `settings.json` – app preferences (language, target shift, notifications)
-- `shift.json` – current/last shift state
-- `history.json` – list of finished shifts
+- `settings.json` â€“ app preferences (language, target shift, notifications)
+- `shift.json` â€“ current/last shift state
+- `history.json` â€“ list of finished shifts
 
 Nothing is synced or sent anywhere.
 
@@ -36,7 +36,7 @@ Nothing is synced or sent anywhere.
 - Set arrival/start time via `Set start`.
 - Start tasks: type a name and press Enter or click `Start task`.
 - Pause/Resume the current task or start a different task (auto?pauses current).
-- Take a break with `Break`/`End break` – breaks extend the planned end time but don’t count as worked time.
+- Take a break with `Break`/`End break` â€“ breaks extend the planned end time but donâ€™t count as worked time.
 - End shift with `End shift` (moves the shift to history).
 - Tray icon: double?click to show, or use the context menu.
 - Settings: language, target shift, notification bubbles.
@@ -45,7 +45,7 @@ CSV export (optional UI button is hidden by default in code) writes: `Start, End
 
 ## Localization
 
-- Supported: `Èeština`, `English`
+- Supported: `ÄŒeÅ¡tina`, `English`
 - Change in `Settings` dialog. Strings are in `WorkTimer.App/Services/Localization.cs`.
 
 ## Project structure
@@ -60,10 +60,6 @@ CSV export (optional UI button is hidden by default in code) writes: `Start, End
 ## Releases
 
 See `docs/RELEASE.md` for publishing steps and recommended settings.
-
-## Screenshots
-
-Add screenshots under `docs/screenshots/` and reference them here.
 
 ## Roadmap and contributing
 
