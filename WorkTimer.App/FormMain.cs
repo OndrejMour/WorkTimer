@@ -171,6 +171,14 @@ public class FormMain : Form
  // Persist on close and on system session ending (logoff/shutdown)
  FormClosing += (_, e) =>
  {
+ // Handle minimize to tray on close
+ if (_settings.MinimizeToTrayOnClose && e.CloseReason == CloseReason.UserClosing)
+ {
+ e.Cancel = true;
+ Hide();
+ return;
+ }
+ 
  // If shift ended, purge finished tasks from current shift so they don't reappear next run
  if (_shift.End.HasValue && _shift.FinishedTasks.Count >0)
  {
@@ -191,6 +199,16 @@ public class FormMain : Form
  PersistenceService.SaveSettings(_settings);
  _tray.Dispose();
  };
+ 
+ // Handle minimize to tray on minimize
+ Resize += (_, __) =>
+ {
+ if (_settings.MinimizeToTray && WindowState == FormWindowState.Minimized)
+ {
+ Hide();
+ }
+ };
+ 
  SystemEvents.SessionEnding += SystemEvents_SessionEnding;
  SystemEvents.PowerModeChanged += SystemEvents_PowerModeChanged;
 

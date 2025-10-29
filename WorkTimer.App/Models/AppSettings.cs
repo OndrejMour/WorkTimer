@@ -15,4 +15,6 @@ public class AppSettings
  public bool NotifyEnd { get; set; } = true;
  public bool NotifyEscapeWindow { get; set; } = false;
  public AppLanguage Language { get; set; } = AppLanguage.Cs;
+ public bool MinimizeToTray { get; set; } = false;
+ public bool MinimizeToTrayOnClose { get; set; } = false;
 }
