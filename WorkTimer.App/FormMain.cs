@@ -172,7 +172,13 @@ public class FormMain : Form
  _btnEndShift.Click += (_, __) => EndShiftNow();
  _btnHistory.Click += (_, __) => OpenHistory();
 
- _tray.ShowRequested += (_, __) => { Show(); Activate(); };
+ _tray.ShowRequested += (_, __) => { 
+     if (WindowState == FormWindowState.Minimized)
+         WindowState = FormWindowState.Normal;
+     Show(); 
+     Activate();
+     BringToFront();
+ };
  _tray.TogglePauseRequested += (_, __) => PauseCurrent();
  _tray.SettingsRequested += (_, __) => OpenSettings();
 
