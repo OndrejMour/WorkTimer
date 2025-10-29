@@ -9,40 +9,41 @@ using Microsoft.Win32;
 using WorkTimer.App.Models;
 using WorkTimer.App.Services;
 using WorkTimer.App.Tray;
+using WorkTimer.App.UI;
 
 namespace WorkTimer.App;
 
 public class FormMain : Form
 {
- // Header controls
- private readonly ProgressBar _shiftBar = new() { Height =20, Dock = DockStyle.Fill };
+ // Header controls - use modern progress bars
+ private readonly ModernProgressBar _shiftBar = new() { Height = 24, Dock = DockStyle.Fill };
  private readonly Label _lbStart = new() { AutoSize = true };
- private readonly Label _lbShiftElapsed = new() { AutoSize = true }; // Odpracováno (smìna)
- private readonly Label _lbTasksSummary = new() { AutoSize = true }; // Odpracováno (úkoly) + Zbývá (do cíle)
+ private readonly Label _lbShiftElapsed = new() { AutoSize = true };
+ private readonly Label _lbTasksSummary = new() { AutoSize = true };
  private readonly Label _lbEnd = new() { AutoSize = true };
  private readonly Label _lbActiveTask = new() { AutoSize = true, Font = new Font(SystemFonts.DefaultFont, FontStyle.Bold) };
- private readonly Label _lbShiftState = new() { AutoSize = true, Font = new Font(SystemFonts.DefaultFont, FontStyle.Bold) }; // Stav smìny
+ private readonly Label _lbShiftState = new() { AutoSize = true, Font = new Font(SystemFonts.DefaultFont, FontStyle.Bold) };
 
- private readonly ProgressBar _escapeBar = new() { Height =20, ForeColor = Color.Green, Dock = DockStyle.Fill };
+ private readonly ModernProgressBar _escapeBar = new() { Height = 24, Dock = DockStyle.Fill };
  private readonly Label _lbNextEscape = new() { AutoSize = true };
 
- // Command buttons
- private readonly Button _btnStartTask = new();
- private readonly Button _btnHide = new();
- private readonly Button _btnExport = new();
- private readonly Button _btnSettings = new();
- private readonly Button _btnHistory = new();
- private readonly Button _btnSetStart = new() { AutoSize = true };
- private readonly Button _btnEndShift = new() { AutoSize = true };
- private readonly Button _btnBreak = new() { AutoSize = true }; // Pøestávka
+ // Command buttons - use modern buttons
+ private readonly ModernButton _btnStartTask = new() { IsPrimary = true };
+ private readonly ModernButton _btnHide = new();
+ private readonly ModernButton _btnExport = new();
+ private readonly ModernButton _btnSettings = new();
+ private readonly ModernButton _btnHistory = new();
+ private readonly ModernButton _btnSetStart = new() { AutoSize = true };
+ private readonly ModernButton _btnEndShift = new() { AutoSize = true };
+ private readonly ModernButton _btnBreak = new() { AutoSize = true };
 
  // New task inline input
- private readonly TextBox _tbNewTask = new() { Width =240 };
+ private readonly TextBox _tbNewTask = new() { Width = 240, Height = 32 };
 
  // Tasks area (scroll -> table with full-width cards)
- private readonly GroupBox _tasksGroup = new() { Dock = DockStyle.Fill, Padding = new Padding(8), Margin = new Padding(8,6,8,0) };
+ private readonly GroupBox _tasksGroup = new() { Dock = DockStyle.Fill, Padding = new Padding(12), Margin = new Padding(12,8,12,0) };
  private readonly Panel _tasksScroll = new() { Dock = DockStyle.Fill, AutoScroll = true };
- private readonly NoFlickerTableLayoutPanel _tasksTable = new() { Dock = DockStyle.Top, ColumnCount =1, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, BackColor = SystemColors.Control };
+ private readonly NoFlickerTableLayoutPanel _tasksTable = new() { Dock = DockStyle.Top, ColumnCount =1, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink };
 
  private readonly System.Windows.Forms.Timer _timer = new() { Interval =1000, Enabled = true };
  private readonly TrayManager _tray = new();
@@ -63,12 +64,17 @@ public class FormMain : Form
  _settings = PersistenceService.LoadSettings();
  _shift = PersistenceService.LoadShift() ?? new Shift { Start = DateTimeOffset.Now, Target = _settings.TargetShift };
 
+ // Apply theme before creating controls
+ Theme.Current = _settings.Theme;
+
  // Sync StartWithWindows setting with actual registry state
  _settings.StartWithWindows = StartupManager.IsStartWithWindowsEnabled();
 
- // Form title
+ // Form title and basic setup
  Text = $"{Localization.T(_settings.Language, "AppName")} {DateTime.Now:HH:mm:ss}";
- Width =620; Height =560; FormBorderStyle = FormBorderStyle.FixedDialog; MaximizeBox = false;
+ Width =640; Height =580; 
+ FormBorderStyle = FormBorderStyle.FixedDialog; 
+ MaximizeBox = false;
  SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
  UpdateStyles();
 
@@ -81,21 +87,23 @@ public class FormMain : Form
  Dock = DockStyle.Fill,
  ColumnCount =1,
  RowCount =8,
- Padding = new Padding(8), // slightly tighter padding
+ Padding = new Padding(12),
  AutoSize = true,
  AutoSizeMode = AutoSizeMode.GrowAndShrink
  };
  header.RowStyles.Add(new RowStyle(SizeType.AutoSize)); //0: start row
- header.RowStyles.Add(new RowStyle(SizeType.Absolute,26)); //1: shift bar taller
+ header.RowStyles.Add(new RowStyle(SizeType.Absolute,30)); //1: shift bar
  header.RowStyles.Add(new RowStyle(SizeType.AutoSize)); //2: elapsed shift
  header.RowStyles.Add(new RowStyle(SizeType.AutoSize)); //3: tasks summary
  header.RowStyles.Add(new RowStyle(SizeType.AutoSize)); //4: active task
  header.RowStyles.Add(new RowStyle(SizeType.AutoSize)); //5: end label
- header.RowStyles.Add(new RowStyle(SizeType.Absolute,26)); //6: escape bar taller
+ header.RowStyles.Add(new RowStyle(SizeType.Absolute,30)); //6: escape bar
  header.RowStyles.Add(new RowStyle(SizeType.AutoSize)); //7: escape label
 
- _shiftBar.Margin = new Padding(0,4,0,6);
- _escapeBar.Margin = new Padding(0,6,0,4);
+ _shiftBar.Margin = new Padding(0,6,0,8);
+ _shiftBar.BarColor = Theme.Success;
+ _escapeBar.Margin = new Padding(0,8,0,6);
+ _escapeBar.BarColor = Theme.Info;
 
  var startRow = new FlowLayoutPanel { FlowDirection = FlowDirection.LeftToRight, Dock = DockStyle.Fill, AutoSize = true };
  startRow.Controls.Add(_lbShiftState);
@@ -122,17 +130,17 @@ public class FormMain : Form
  }
 
  // Inline new task panel (below tasks, above buttons)
- var newTaskPanel = new FlowLayoutPanel { Dock = DockStyle.Fill, AutoSize = true, Height =36, Padding = new Padding(8,6,8,0) };
+ var newTaskPanel = new FlowLayoutPanel { Dock = DockStyle.Fill, AutoSize = true, Height =44, Padding = new Padding(12,8,12,0), FlowDirection = FlowDirection.LeftToRight };
+ _tbNewTask.BorderStyle = BorderStyle.FixedSingle;
  newTaskPanel.Controls.Add(_tbNewTask);
  newTaskPanel.Controls.Add(_btnStartTask);
 
  // Bottom commands panel
- var bottom = new FlowLayoutPanel { Dock = DockStyle.Fill, Height =44, AutoSize = true };
- // Removed _btnStartTask from bottom, it lives next to the textbox above
+ var bottom = new FlowLayoutPanel { Dock = DockStyle.Fill, Height =52, AutoSize = true, Padding = new Padding(12,8,12,12), FlowDirection = FlowDirection.LeftToRight };
  bottom.Controls.Add(_btnExport);
  bottom.Controls.Add(_btnSettings);
- bottom.Controls.Add(_btnHide);
  bottom.Controls.Add(_btnHistory);
+ bottom.Controls.Add(_btnHide);
 
  // Root layout
  var root = new TableLayoutPanel
@@ -215,9 +223,43 @@ public class FormMain : Form
  SystemEvents.SessionEnding += SystemEvents_SessionEnding;
  SystemEvents.PowerModeChanged += SystemEvents_PowerModeChanged;
 
- // Initial localization for UI captions
+ // Initial localization and theme
  ApplyLocalization();
+ ApplyTheme();
  TickUpdate();
+ }
+
+ private void ApplyTheme()
+ {
+ // Apply theme to all controls
+ Theme.ApplyToControl(this);
+ 
+ // Apply dark mode to title bar (Windows 10/11)
+ if (DarkModeHelper.IsSupported())
+ {
+ DarkModeHelper.SetDarkModeTitleBar(this, Theme.Current == AppTheme.Dark);
+ }
+ 
+ // Additional custom styling for specific controls
+ _tasksTable.BackColor = Theme.Background;
+ _tasksScroll.BackColor = Theme.Background;
+ 
+ // Update progress bar colors
+ _shiftBar.BarColor = Theme.Success;
+ _escapeBar.BarColor = Theme.Info;
+ 
+ // Ensure primary button styling
+ _btnStartTask.IsPrimary = true;
+ 
+ // Refresh all task cards with new theme
+ foreach (var row in _rowsByTask.Values)
+ {
+ if (row.Card is ModernCard card)
+ {
+ card.BackColor = Theme.CardBackground;
+ card.Invalidate();
+ }
+ }
  }
 
  private void SystemEvents_SessionEnding(object? sender, SessionEndingEventArgs e)
@@ -273,6 +315,7 @@ public class FormMain : Form
  var L = _settings.Language;
  using var dlg = new InputBox(Localization.T(L, "TaskNamePrompt"));
  dlg.ApplyLocalization(L);
+ Theme.ApplyToControl(dlg);
  if (dlg.ShowDialog(this) != DialogResult.OK) return;
  var task = (dlg.Value ?? string.Empty).Trim();
  if (string.IsNullOrEmpty(task)) return;
@@ -337,6 +380,7 @@ public class FormMain : Form
  var L = _settings.Language;
  using var f = new FormSetStart(DateTime.Now.TimeOfDay);
  f.ApplyLocalization(L);
+ Theme.ApplyToControl(f);
  if (f.ShowDialog(this) == DialogResult.OK)
  {
  var today = DateTime.Now.Date;
@@ -352,14 +396,14 @@ public class FormMain : Form
  private sealed class TaskRow
  {
  public string Name = string.Empty;
- public Label LName = new() { AutoSize = true };
+ public Label LName = new() { AutoSize = true, Font = new Font(SystemFonts.DefaultFont.FontFamily, 9.5f, FontStyle.Bold) };
  public Label LStatus = new() { AutoSize = true };
  public Label LDuration = new() { AutoSize = false, TextAlign = ContentAlignment.MiddleLeft };
- public Button BtnToggle = new() { Width =28, Height =28, Margin = new Padding(3), Text = string.Empty };
- public Button BtnFinish = new() { Width =28, Height =28, Margin = new Padding(3), Text = string.Empty };
- public Button BtnRename = new() { Width =28, Height =28, Margin = new Padding(3), Text = string.Empty };
- public Button BtnDelete = new() { Width =28, Height =28, Margin = new Padding(3), Text = string.Empty };
- public TaskCardPanel Card = new() { BorderStyle = BorderStyle.FixedSingle, Margin = new Padding(0,0,0,6), Padding = new Padding(8), MinimumSize = new Size(0,48), Height =48, Anchor = AnchorStyles.Left | AnchorStyles.Right };
+ public ModernButton BtnToggle = new() { Width =32, Height =32, Margin = new Padding(2), Text = string.Empty };
+ public ModernButton BtnFinish = new() { Width =32, Height =32, Margin = new Padding(2), Text = string.Empty };
+ public ModernButton BtnRename = new() { Width =32, Height =32, Margin = new Padding(2), Text = string.Empty };
+ public ModernButton BtnDelete = new() { Width =32, Height =32, Margin = new Padding(2), Text = string.Empty };
+ public ModernCard Card = new() { Margin = new Padding(0,0,0,10), Padding = new Padding(12), MinimumSize = new Size(0,56), Height =56, Anchor = AnchorStyles.Left | AnchorStyles.Right };
  }
 
  private void BuildTasksPanel()
@@ -402,7 +446,8 @@ public class FormMain : Form
  {
  _tasksTable.RowStyles.Add(new RowStyle(SizeType.AutoSize));
  _tasksTable.RowCount++;
- _tasksTable.Controls.Add(new Label { Text = Localization.T(_settings.Language, "NoTasksYet"), AutoSize = true, Padding = new Padding(8) },0, _tasksTable.RowCount -1);
+ var noTasksLabel = new Label { Text = Localization.T(_settings.Language, "NoTasksYet"), AutoSize = true, Padding = new Padding(12), ForeColor = Theme.TextSecondary };
+ _tasksTable.Controls.Add(noTasksLabel,0, _tasksTable.RowCount -1);
  _tasksTable.ResumeLayout();
  return;
  }
@@ -441,16 +486,24 @@ public class FormMain : Form
  var L = _settings.Language;
  var row = new TaskRow { Name = name };
  row.LName.Text = name;
- row.LStatus.Text = isActive ? Localization.T(L, "Active") : (_shift.FinishedTasks.Contains(name) ? Localization.T(L, "Finished") : Localization.T(L, "Paused"));
- row.LStatus.ForeColor = isActive ? Color.DarkGreen : (_shift.FinishedTasks.Contains(name) ? Color.Gray : Color.DarkOrange);
+ row.LName.ForeColor = Theme.Text;
+ 
+ bool isFinished = _shift.FinishedTasks.Contains(name);
+ row.LStatus.Text = isActive ? Localization.T(L, "Active") : (isFinished ? Localization.T(L, "Finished") : Localization.T(L, "Paused"));
+ row.LStatus.ForeColor = isActive ? Theme.Success : (isFinished ? Theme.Disabled : Theme.Warning);
  row.LDuration.Text = duration.ToString("hh\\:mm\\:ss");
- row.LDuration.Width = TextRenderer.MeasureText("00:00:00", Font).Width +4;
+ row.LDuration.ForeColor = Theme.Text;
+ row.LDuration.Width = TextRenderer.MeasureText("00:00:00", Font).Width +8;
 
- // Icon images (drawn -> works on all fonts)
- row.BtnToggle.Image = isActive ? IconFactory.Pause16() : IconFactory.Play16();
- row.BtnFinish.Image = IconFactory.Stop16();
- row.BtnRename.Image = IconFactory.Pencil16();
- row.BtnDelete.Image = IconFactory.Trash16();
+ // Icon images adapted to theme
+ var iconColor = Theme.Current == AppTheme.Dark ? Color.FromArgb(200, 200, 200) : Color.Black;
+ row.BtnToggle.Image = isActive ? IconFactory.Pause16(iconColor) : IconFactory.Play16(iconColor);
+ row.BtnFinish.Image = IconFactory.Stop16(iconColor);
+ row.BtnRename.Image = IconFactory.Pencil16(iconColor);
+ row.BtnDelete.Image = IconFactory.Trash16(iconColor);
+
+ // Mark active card
+ row.Card.IsActive = isActive;
 
  // Fix: Always check current state instead of using captured isActive value
  row.BtnToggle.Click += (_, __) =>
@@ -479,20 +532,20 @@ public class FormMain : Form
  row.BtnRename.Click += (_, __) => RenameTask(name);
  row.BtnDelete.Click += (_, __) => DeleteTask(name);
 
- var inner = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount =2, RowCount =1 };
+ var inner = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount =2, RowCount =1, BackColor = Color.Transparent };
  inner.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100));
  inner.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
- inner.RowStyles.Add(new RowStyle(SizeType.Absolute,40));
+ inner.RowStyles.Add(new RowStyle(SizeType.Absolute,44));
 
- var info = new FlowLayoutPanel { FlowDirection = FlowDirection.LeftToRight, AutoSize = true, Dock = DockStyle.Fill, WrapContents = false, Margin = new Padding(0), Padding = new Padding(0) };
+ var info = new FlowLayoutPanel { FlowDirection = FlowDirection.LeftToRight, AutoSize = true, Dock = DockStyle.Fill, WrapContents = false, Margin = new Padding(0), Padding = new Padding(0), BackColor = Color.Transparent };
  info.Controls.Add(row.LName);
- info.Controls.Add(new Label { Text = " | ", AutoSize = true });
+ info.Controls.Add(new Label { Text = " | ", AutoSize = true, ForeColor = Theme.TextSecondary });
  info.Controls.Add(row.LStatus);
- info.Controls.Add(new Label { Text = " | ", AutoSize = true });
- info.Controls.Add(new Label { Text = Localization.T(L, "Time"), AutoSize = true });
+ info.Controls.Add(new Label { Text = " | ", AutoSize = true, ForeColor = Theme.TextSecondary });
+ info.Controls.Add(new Label { Text = Localization.T(L, "Time"), AutoSize = true, ForeColor = Theme.TextSecondary });
  info.Controls.Add(row.LDuration);
 
- var btns = new FlowLayoutPanel { FlowDirection = FlowDirection.LeftToRight, AutoSize = true, Dock = DockStyle.Right, WrapContents = false, Margin = new Padding(0), Padding = new Padding(0) };
+ var btns = new FlowLayoutPanel { FlowDirection = FlowDirection.LeftToRight, AutoSize = true, Dock = DockStyle.Right, WrapContents = false, Margin = new Padding(0), Padding = new Padding(0), BackColor = Color.Transparent };
  btns.Controls.Add(row.BtnToggle);
  btns.Controls.Add(row.BtnFinish);
  btns.Controls.Add(row.BtnRename);
@@ -506,7 +559,7 @@ public class FormMain : Form
 
  private void EnforceCardWidth()
  {
- var w = _tasksScroll.ClientSize.Width -2 *8; // minus typical padding
+ var w = _tasksScroll.ClientSize.Width - 2 * 12; // minus padding
  foreach (Control ctl in _tasksTable.Controls)
  {
  ctl.Width = Math.Max(0, w);
@@ -529,16 +582,19 @@ public class FormMain : Form
  if (groups.Count != _rowsByTask.Count || _rowsByTask.Keys.Any(k => !groups.ContainsKey(k)))
  { BuildTasksPanel(); return; }
 
+ var iconColor = Theme.Current == AppTheme.Dark ? Color.FromArgb(200, 200, 200) : Color.Black;
+ 
  foreach (var (name, row) in _rowsByTask)
  {
  var g = groups[name];
  row.LDuration.Text = g.Duration.ToString("hh\\:mm\\:ss");
  bool isFinished = _shift.FinishedTasks.Contains(name);
  row.LStatus.Text = g.IsActive ? Localization.T(_settings.Language, "Active") : (isFinished ? Localization.T(_settings.Language, "Finished") : Localization.T(_settings.Language, "Paused"));
- row.LStatus.ForeColor = g.IsActive ? Color.DarkGreen : (isFinished ? Color.Gray : Color.DarkOrange);
- row.BtnToggle.Image = g.IsActive ? IconFactory.Pause16() : IconFactory.Play16();
+ row.LStatus.ForeColor = g.IsActive ? Theme.Success : (isFinished ? Theme.Disabled : Theme.Warning);
+ row.BtnToggle.Image = g.IsActive ? IconFactory.Pause16(iconColor) : IconFactory.Play16(iconColor);
  row.BtnToggle.Enabled = !isFinished;
  row.BtnFinish.Enabled = !isFinished;
+ row.Card.IsActive = g.IsActive;
  }
  }
 
@@ -547,6 +603,7 @@ public class FormMain : Form
  var L = _settings.Language;
  using var dlg = new InputBox(string.Format(Localization.T(L, "RenameTaskPrompt"), oldName));
  dlg.ApplyLocalization(L);
+ Theme.ApplyToControl(dlg);
  if (dlg.ShowDialog(this) != DialogResult.OK) return;
  var newName = (dlg.Value ?? string.Empty).Trim();
  if (string.IsNullOrEmpty(newName) || newName == oldName) return;
@@ -607,17 +664,21 @@ public class FormMain : Form
  _shiftBar.Maximum = (int)Math.Max(1, target.TotalSeconds);
  _shiftBar.Value = (int)Math.Clamp(workedShift.TotalSeconds,0, _shiftBar.Maximum);
  _lbShiftElapsed.Text = $"{Localization.T(L, "WorkedShift")} {workedShift:hh\\:mm\\:ss}";
+ _lbShiftElapsed.ForeColor = Theme.Text;
 
  var workedTasks = _shift.WorkedTasks;
  var remainingToTarget = _shift.Remaining;
 
  // Start label without current time (now time is in window title)
  _lbStart.Text = $"{Localization.T(L, "Start")}: {start:HH:mm}";
+ _lbStart.ForeColor = Theme.Text;
  _lbTasksSummary.Text = $"{Localization.T(L, "WorkedTasks")} {workedTasks:hh\\:mm\\:ss} {Localization.T(L, "RemainToTarget")} {remainingToTarget:hh\\:mm\\:ss}";
+ _lbTasksSummary.ForeColor = Theme.Text;
 
  // Planned end time includes breaks
  var plannedEnd = _shift.PlannedEnd;
  _lbEnd.Text = $"{Localization.T(L, "ShiftEnd")} {plannedEnd:HH:mm}";
+ _lbEnd.ForeColor = Theme.Text;
 
  var nextEsc = NextEscapeWindow(start, nowSnap);
  var winStart = nextEsc.AddMinutes(-15);
@@ -625,31 +686,35 @@ public class FormMain : Form
  _escapeBar.Maximum = (int)TimeSpan.FromMinutes(15).TotalSeconds;
  _escapeBar.Value = (int)Math.Clamp(escProg,0, _escapeBar.Maximum);
  _lbNextEscape.Text = $"{Localization.T(L, "NextEscape")} {winStart:HH:mm} - {nextEsc:HH:mm}";
+ _lbNextEscape.ForeColor = Theme.Text;
 
  var current = _shift.Segments.LastOrDefault(s => s.End == null);
  if (current != null)
  {
  var curDur = (nowSnap - current.Start);
  _lbActiveTask.Text = $"{Localization.T(L, "ActiveTask")} {current.Task ?? Localization.T(L, "Unnamed")} {Localization.T(L, "From")} {current.Start:HH:mm} – {curDur:hh\\:mm\\:ss}";
- _lbActiveTask.ForeColor = Color.DarkGreen;
+ _lbActiveTask.ForeColor = Theme.Success;
  }
- else { _lbActiveTask.Text = $"{Localization.T(L, "ActiveTask")} — {Localization.T(L, "PausedState")}"; _lbActiveTask.ForeColor = SystemColors.ControlText; }
+ else { 
+ _lbActiveTask.Text = $"{Localization.T(L, "ActiveTask")} — {Localization.T(L, "PausedState")}"; 
+ _lbActiveTask.ForeColor = Theme.TextSecondary; 
+ }
 
  // Shift state indicator
  if (_shift.IsOnBreak)
  {
  _lbShiftState.Text = $"{Localization.T(L, "ShiftState")} {Localization.T(L, "OnBreak")}";
- _lbShiftState.ForeColor = Color.DarkOrange;
+ _lbShiftState.ForeColor = Theme.Warning;
  }
  else if (_shift.End.HasValue)
  {
  _lbShiftState.Text = $"{Localization.T(L, "ShiftState")} {Localization.T(L, "ShiftEnded")}";
- _lbShiftState.ForeColor = Color.DarkRed;
+ _lbShiftState.ForeColor = Theme.Error;
  }
  else
  {
  _lbShiftState.Text = $"{Localization.T(L, "ShiftState")} {Localization.T(L, "ShiftRunning")}";
- _lbShiftState.ForeColor = Color.DarkGreen;
+ _lbShiftState.ForeColor = Theme.Success;
  }
 
  // Break button text
@@ -684,6 +749,7 @@ public class FormMain : Form
  if (f.ShowDialog(this) == DialogResult.OK)
  {
  var oldStartWithWindows = _settings.StartWithWindows;
+ var oldTheme = _settings.Theme;
  _settings = f.Settings;
  _shift.Target = _settings.TargetShift;
  
@@ -691,6 +757,14 @@ public class FormMain : Form
  if (oldStartWithWindows != _settings.StartWithWindows)
  {
  StartupManager.SetStartWithWindows(_settings.StartWithWindows);
+ }
+ 
+ // Apply theme if changed
+ if (oldTheme != _settings.Theme)
+ {
+ Theme.Current = _settings.Theme;
+ ApplyTheme();
+ BuildTasksPanel(); // Rebuild to apply theme to cards
  }
  
  PersistenceService.SaveSettings(_settings);
@@ -704,6 +778,7 @@ public class FormMain : Form
  private void OpenHistory()
  {
  using var f = new FormHistory(_settings.Language);
+ Theme.ApplyToControl(f);
  f.ShowDialog(this);
  }
 
@@ -717,15 +792,19 @@ public class FormMain : Form
 
 internal class InputBox : Form
 {
- private readonly TextBox _tb = new() { Dock = DockStyle.Top };
- private readonly Button _ok = new() { DialogResult = DialogResult.OK };
- private readonly Button _cancel = new() { DialogResult = DialogResult.Cancel };
+ private readonly TextBox _tb = new() { Dock = DockStyle.Top, Height = 28 };
+ private readonly ModernButton _ok = new() { DialogResult = DialogResult.OK, IsPrimary = true };
+ private readonly ModernButton _cancel = new() { DialogResult = DialogResult.Cancel };
  public string? Value => _tb.Text;
  public InputBox(string prompt)
  {
- Width =320; Height =120; FormBorderStyle = FormBorderStyle.FixedDialog; MaximizeBox = false; MinimizeBox = false;
- var lbl = new Label { Text = prompt, Dock = DockStyle.Top };
- var panel = new FlowLayoutPanel { Dock = DockStyle.Bottom, Height =40 };
+ Width =340; Height =140; 
+ FormBorderStyle = FormBorderStyle.FixedDialog; 
+ MaximizeBox = false; MinimizeBox = false;
+ StartPosition = FormStartPosition.CenterParent;
+ 
+ var lbl = new Label { Text = prompt, Dock = DockStyle.Top, Padding = new Padding(8), Height = 32 };
+ var panel = new FlowLayoutPanel { Dock = DockStyle.Bottom, Height =48, Padding = new Padding(8) };
  panel.Controls.Add(_ok); panel.Controls.Add(_cancel);
  Controls.Add(_tb); Controls.Add(lbl); Controls.Add(panel);
  AcceptButton = _ok; CancelButton = _cancel;
@@ -735,6 +814,16 @@ internal class InputBox : Form
  Text = Localization.T(L, "InputTitle");
  _ok.Text = Localization.T(L, "Ok");
  _cancel.Text = Localization.T(L, "Cancel");
+ }
+ 
+ protected override void OnLoad(EventArgs e)
+ {
+ base.OnLoad(e);
+ // Apply dark mode title bar after handle is created
+ if (DarkModeHelper.IsSupported())
+ {
+ DarkModeHelper.SetDarkModeTitleBar(this, Theme.Current == AppTheme.Dark);
+ }
  }
 }
 
@@ -775,30 +864,29 @@ internal static class IconFactory
  return bmp;
  }
 
- public static Bitmap Play16() => Make(16,16, g =>
+ public static Bitmap Play16(Color? color = null) => Make(16,16, g =>
  {
- using var b = new SolidBrush(Color.Black);
+ using var b = new SolidBrush(color ?? Color.Black);
  g.FillPolygon(b, new[] { new PointF(4,3), new PointF(13,8), new PointF(4,13) });
  });
 
- public static Bitmap Pause16() => Make(16,16, g =>
+ public static Bitmap Pause16(Color? color = null) => Make(16,16, g =>
  {
- using var b = new SolidBrush(Color.Black);
+ using var b = new SolidBrush(color ?? Color.Black);
  g.FillRectangle(b, new RectangleF(3,3,4,10));
  g.FillRectangle(b, new RectangleF(9,3,4,10));
  });
 
- public static Bitmap Stop16() => Make(16,16, g =>
+ public static Bitmap Stop16(Color? color = null) => Make(16,16, g =>
  {
- using var b = new SolidBrush(Color.Black);
+ using var b = new SolidBrush(color ?? Color.Black);
  g.FillRectangle(b, new RectangleF(3,3,10,10));
  });
 
- // Clearer pencil writing on paper
- public static Bitmap Pencil16() => Make(16,16, g =>
+ public static Bitmap Pencil16(Color? color = null) => Make(16,16, g =>
  {
- using var pen = new Pen(Color.Black,1.5f) { LineJoin = LineJoin.Round };
- using var brush = new SolidBrush(Color.Black);
+ using var pen = new Pen(color ?? Color.Black,1.5f) { LineJoin = LineJoin.Round };
+ using var brush = new SolidBrush(color ?? Color.Black);
  // Paper outline
  g.DrawRectangle(pen, new Rectangle(1,1,10,12));
  // Folded corner
@@ -808,8 +896,7 @@ internal static class IconFactory
  // Pencil body (diagonal)
  g.TranslateTransform(3,12);
  g.RotateTransform(-40);
- g.FillRectangle(brush, new RectangleF(0,-1,8,2)); // body
- // Pencil tip
+ g.FillRectangle(brush, new RectangleF(0,-1,8,2));
  g.FillPolygon(brush, new[] { new PointF(8,-1), new PointF(11,0), new PointF(8,1) });
  g.ResetTransform();
 
@@ -817,14 +904,13 @@ internal static class IconFactory
  g.DrawLine(pen,3,11,8,11);
  });
 
- // Trash bin icon
- public static Bitmap Trash16() => Make(16,16, g =>
+ public static Bitmap Trash16(Color? color = null) => Make(16,16, g =>
  {
- using var pen = new Pen(Color.Black,1.5f) { LineJoin = LineJoin.Round, StartCap = LineCap.Round, EndCap = LineCap.Round };
- using var brush = new SolidBrush(Color.Black);
+ using var pen = new Pen(color ?? Color.Black,1.5f) { LineJoin = LineJoin.Round, StartCap = LineCap.Round, EndCap = LineCap.Round };
+ using var brush = new SolidBrush(color ?? Color.Black);
  // Lid
  g.FillRectangle(brush, new RectangleF(3,3,10,2));
- g.FillRectangle(brush, new RectangleF(6,2,4,1)); // handle
+ g.FillRectangle(brush, new RectangleF(6,2,4,1));
  // Bin
  g.DrawRectangle(pen, new Rectangle(4,5,8,9));
  // Slats

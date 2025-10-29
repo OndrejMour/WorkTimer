@@ -1,4 +1,5 @@
 using System;
+using WorkTimer.App.UI;
 
 namespace WorkTimer.App.Models;
 
@@ -18,4 +19,5 @@ public class AppSettings
  public bool MinimizeToTray { get; set; } = false;
  public bool MinimizeToTrayOnClose { get; set; } = false;
  public bool StartWithWindows { get; set; } = false;
+ public AppTheme Theme { get; set; } = AppTheme.Light;
 }

@@ -83,6 +83,8 @@ public static class Localization
  "Language" => "Language:",
  "LanguageCs" => "Èeština",
  "LanguageEn" => "English",
+ "DarkMode" => "Dark mode",
+ "TipDarkMode" => "Enables dark color scheme for the application interface.",
 
  // Set start dialog
  "SetStartTitle" => "Set start",
@@ -169,13 +171,15 @@ public static class Localization
  "TipBubblesEscape" => "Zobrazí bublinu v tray na konci kadého15min okna pro odchod (napø.8:00–8:15,8:15–8:30) vypoèteného od pøíchodu.",
  "MinimizeToTray" => "Minimalizovat do tray pøi minimalizaci",
  "MinimizeToTrayOnClose" => "Minimalizovat do tray pøi zavøení",
- "TipMinimizeToTray" => "Pokud je zapnuto, minimalizace okna jej skryje do syst?mov?ho tray nam?sto panelu ?loh.",
- "TipMinimizeToTrayOnClose" => "Pokud je zapnuto, zav?en? okna jej skryje do syst?mov?ho tray nam?sto ukon?en? aplikace.",
+ "TipMinimizeToTray" => "Pokud je zapnuto, minimalizace okna jej skryje do systémového tray namísto panelu úloh.",
+ "TipMinimizeToTrayOnClose" => "Pokud je zapnuto, zavøení okna jej skryje do systémového tray namísto ukonèení aplikace.",
  "StartWithWindows" => "Spustit s Windows",
  "TipStartWithWindows" => "Pokud je zapnuto, aplikace se automaticky spustí pøi pøihlášení do Windows.",
  "Language" => "Jazyk:",
  "LanguageCs" => "Èeština",
  "LanguageEn" => "English",
+ "DarkMode" => "Tmavı reim",
+ "TipDarkMode" => "Zapne tmavé barevné schéma aplikace.",
 
  // Set start dialog
  "SetStartTitle" => "Nastavit pøíchod",
