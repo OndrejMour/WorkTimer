@@ -14,6 +14,7 @@ public class FormSettings : Form
  private readonly CheckBox _cbEscape = new() { AutoSize = false, Dock = DockStyle.Fill };
  private readonly CheckBox _cbMinimizeToTray = new() { AutoSize = false, Dock = DockStyle.Fill };
  private readonly CheckBox _cbMinimizeToTrayOnClose = new() { AutoSize = false, Dock = DockStyle.Fill };
+ private readonly CheckBox _cbStartWithWindows = new() { AutoSize = false, Dock = DockStyle.Fill };
  private readonly ComboBox _cbLanguage = new() { DropDownStyle = ComboBoxStyle.DropDownList, Width =160 };
  private readonly Button _ok = new() { DialogResult = DialogResult.OK };
  private readonly Button _cancel = new() { DialogResult = DialogResult.Cancel };
@@ -27,7 +28,7 @@ public class FormSettings : Form
  FormBorderStyle = FormBorderStyle.FixedDialog;
  MaximizeBox = false; MinimizeBox = false;
  StartPosition = FormStartPosition.CenterParent;
- MinimumSize = new System.Drawing.Size(520,300);
+ MinimumSize = new System.Drawing.Size(520,380);
 
  Settings = new AppSettings
  {
@@ -37,7 +38,8 @@ public class FormSettings : Form
  NotifyEscapeWindow = settings.NotifyEscapeWindow,
  Language = settings.Language,
  MinimizeToTray = settings.MinimizeToTray,
- MinimizeToTrayOnClose = settings.MinimizeToTrayOnClose
+ MinimizeToTrayOnClose = settings.MinimizeToTrayOnClose,
+ StartWithWindows = settings.StartWithWindows
  };
 
  // Initial values
@@ -48,6 +50,7 @@ public class FormSettings : Form
  _cbEscape.Checked = Settings.NotifyEscapeWindow;
  _cbMinimizeToTray.Checked = Settings.MinimizeToTray;
  _cbMinimizeToTrayOnClose.Checked = Settings.MinimizeToTrayOnClose;
+ _cbStartWithWindows.Checked = Settings.StartWithWindows;
  _cbLanguage.Items.AddRange(new object[] { Localization.T(Settings.Language, "LanguageCs"), Localization.T(Settings.Language, "LanguageEn") });
  _cbLanguage.SelectedIndex = Settings.Language == AppLanguage.Cs ?0 :1;
 
@@ -71,6 +74,7 @@ public class FormSettings : Form
  _cbEscape.Margin = new Padding(3,3,3,0);
  _cbMinimizeToTray.Margin = new Padding(3,3,3,0);
  _cbMinimizeToTrayOnClose.Margin = new Padding(3,3,3,0);
+ _cbStartWithWindows.Margin = new Padding(3,3,3,0);
  pane.Controls.Add(_cbHalf,0,1);
  pane.SetColumnSpan(_cbHalf,2);
  pane.Controls.Add(_cbEnd,0,2);
@@ -81,10 +85,12 @@ public class FormSettings : Form
  pane.SetColumnSpan(_cbMinimizeToTray,2);
  pane.Controls.Add(_cbMinimizeToTrayOnClose,0,5);
  pane.SetColumnSpan(_cbMinimizeToTrayOnClose,2);
+ pane.Controls.Add(_cbStartWithWindows,0,6);
+ pane.SetColumnSpan(_cbStartWithWindows,2);
 
  // language
- pane.Controls.Add(new Label { AutoSize = true, Padding = new Padding(0,8,6,0), Name = "lblLang" },0,6);
- pane.Controls.Add(_cbLanguage,1,6);
+ pane.Controls.Add(new Label { AutoSize = true, Padding = new Padding(0,8,6,0), Name = "lblLang" },0,7);
+ pane.Controls.Add(_cbLanguage,1,7);
 
  // buttons
  var buttons = new FlowLayoutPanel { Dock = DockStyle.Bottom, Height =40 };
@@ -116,6 +122,7 @@ public class FormSettings : Form
  _cbEscape.Text = Localization.T(L, "BubblesEscape");
  _cbMinimizeToTray.Text = Localization.T(L, "MinimizeToTray");
  _cbMinimizeToTrayOnClose.Text = Localization.T(L, "MinimizeToTrayOnClose");
+ _cbStartWithWindows.Text = Localization.T(L, "StartWithWindows");
  _ok.Text = Localization.T(L, "Ok");
  _cancel.Text = Localization.T(L, "Cancel");
  if (Controls[0] is TableLayoutPanel pane)
@@ -147,6 +154,7 @@ public class FormSettings : Form
  _tips.SetToolTip(_cbEscape, Localization.T(L, "TipBubblesEscape"));
  _tips.SetToolTip(_cbMinimizeToTray, Localization.T(L, "TipMinimizeToTray"));
  _tips.SetToolTip(_cbMinimizeToTrayOnClose, Localization.T(L, "TipMinimizeToTrayOnClose"));
+ _tips.SetToolTip(_cbStartWithWindows, Localization.T(L, "TipStartWithWindows"));
  }
 
  private void SaveBack()
@@ -158,6 +166,7 @@ public class FormSettings : Form
  Settings.NotifyEscapeWindow = _cbEscape.Checked;
  Settings.MinimizeToTray = _cbMinimizeToTray.Checked;
  Settings.MinimizeToTrayOnClose = _cbMinimizeToTrayOnClose.Checked;
+ Settings.StartWithWindows = _cbStartWithWindows.Checked;
  Settings.Language = _cbLanguage.SelectedIndex ==1 ? AppLanguage.En : AppLanguage.Cs;
  }
 }

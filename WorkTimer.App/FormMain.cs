@@ -63,6 +63,9 @@ public class FormMain : Form
  _settings = PersistenceService.LoadSettings();
  _shift = PersistenceService.LoadShift() ?? new Shift { Start = DateTimeOffset.Now, Target = _settings.TargetShift };
 
+ // Sync StartWithWindows setting with actual registry state
+ _settings.StartWithWindows = StartupManager.IsStartWithWindowsEnabled();
+
  // Form title
  Text = $"{Localization.T(_settings.Language, "AppName")} {DateTime.Now:HH:mm:ss}";
  Width =620; Height =560; FormBorderStyle = FormBorderStyle.FixedDialog; MaximizeBox = false;
@@ -680,8 +683,16 @@ public class FormMain : Form
  using var f = new FormSettings(_settings, _shift);
  if (f.ShowDialog(this) == DialogResult.OK)
  {
+ var oldStartWithWindows = _settings.StartWithWindows;
  _settings = f.Settings;
  _shift.Target = _settings.TargetShift;
+ 
+ // Apply Start with Windows setting if changed
+ if (oldStartWithWindows != _settings.StartWithWindows)
+ {
+ StartupManager.SetStartWithWindows(_settings.StartWithWindows);
+ }
+ 
  PersistenceService.SaveSettings(_settings);
  PersistenceService.SaveShift(_shift);
  // Re-apply localization after changing language

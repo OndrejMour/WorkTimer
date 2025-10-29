@@ -17,4 +17,5 @@ public class AppSettings
  public AppLanguage Language { get; set; } = AppLanguage.Cs;
  public bool MinimizeToTray { get; set; } = false;
  public bool MinimizeToTrayOnClose { get; set; } = false;
+ public bool StartWithWindows { get; set; } = false;
 }
