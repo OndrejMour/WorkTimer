@@ -431,7 +431,22 @@ public class FormMain : Form
  row.BtnRename.Image = IconFactory.Pencil16();
  row.BtnDelete.Image = IconFactory.Trash16();
 
- row.BtnToggle.Click += (_, __) => { if (isActive) PauseCurrent(); else StartTask(name); };
+ // Fix: Always check current state instead of using captured isActive value
+ row.BtnToggle.Click += (_, __) =>
+ {
+ // Check if this task is currently active
+ var currentSegment = _shift.Segments.LastOrDefault(s => s.End == null);
+ var currentTaskName = currentSegment != null 
+     ? (string.IsNullOrWhiteSpace(currentSegment.Task) ? Localization.T(L, "Unnamed") : currentSegment.Task!)
+     : null;
+ bool isCurrentlyActive = currentTaskName == name;
+ 
+ if (isCurrentlyActive) 
+     PauseCurrent(); 
+ else 
+     StartTask(name);
+ };
+ 
  row.BtnFinish.Click += (_, __) =>
  {
  var cur = _shift.Segments.LastOrDefault(s => s.End == null);
