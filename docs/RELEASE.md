@@ -14,6 +14,7 @@ Artifacts will be under `WorkTimer.App/bin/Release/net8.0-windows/win-x64/publis
 ##3) Portable zip
 - Include the `WorkTimer.App.exe` and its runtime files.
 - Exclude `shift.json`, `settings.json`, `history.json` (created on first run).
+- The executable will have the app icon embedded from `app.ico`.
 
 ##4) Optional: Single-file
 - `dotnet publish WorkTimer.App -c Release -r win-x64 -p:PublishSingleFile=true -p:SelfContained=false`
@@ -25,3 +26,6 @@ Artifacts will be under `WorkTimer.App/bin/Release/net8.0-windows/win-x64/publis
 - Tag: `vX.Y.Z`
 - Upload zip with binaries
 - Add changelog notes
+
+## Icon
+The app icon is embedded into the executable from `WorkTimer.App/app.ico`. The icon is programmatically generated at runtime via `AppIcon.cs` for the system tray, but the file icon comes from the `.ico` file referenced in the project file.
