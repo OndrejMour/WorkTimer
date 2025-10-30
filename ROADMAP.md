@@ -4,9 +4,7 @@ Ideas and possible next steps. Vote or send PRs.
 
 ## Short term
 - App installer (MSIX) and versioning
-- Persist window position/size
 - Export implementation
-- UI: dark theme support, better icons
 
 ## Medium term
 - Per-task notes editing UI
